@@ -571,6 +571,7 @@ void CTFGCClientSystem::WebapiInventoryThink()
 	}
 
 	case kWebapiInventoryState_SentToServer:
+	case kWebapiInventoryState_ServerInventoryReceived:
 		if ( !engine->IsConnected() || state.m_bLocalChangesApplied )
 		{
 			// Disconnected from server or user changed loadout.  Cancel auth ticket and reauth when we next connect
@@ -590,13 +591,20 @@ void CTFGCClientSystem::WebapiInventoryThink()
 	}
 }
 
-void CTFGCClientSystem::ServerRequestEquipment()
+void CTFGCClientSystem::ServerHandleEquipment( bool bHasEquipment )
 {
 	// Something went wrong on the server side (e.g. steam invalidated our inventory auth ticket)
 	// Get a new one and try again.
 	if( m_WebapiInventory.m_eState == kWebapiInventoryState_SentToServer )
 	{
-		m_WebapiInventory.m_eState = kWebapiInventoryState_InventoryReceived;
+		if ( bHasEquipment )
+		{
+			m_WebapiInventory.m_eState = kWebapiInventoryState_ServerInventoryReceived;
+		}
+		else
+		{
+			m_WebapiInventory.m_eState = kWebapiInventoryState_InventoryReceived;
+		}
 	}
 	else
 	{

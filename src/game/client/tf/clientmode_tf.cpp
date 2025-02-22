@@ -2523,9 +2523,11 @@ USER_MESSAGE( BuiltObject )
 // Purpose: Hook for servers requesting our current loadout
 // (SDK mods do not connect to the gc and get subscriptions)
 //-----------------------------------------------------------------------------
-USER_MESSAGE( SdkRequestEquipment )
+USER_MESSAGE( SdkEquipment )
 {
-	GTFGCClientSystem()->ServerRequestEquipment();
+	bool bHasEquipment = (bool)msg.ReadByte();
+
+	GTFGCClientSystem()->ServerHandleEquipment( bHasEquipment );
 }
 
 float PlaySoundEntry( const char* pszSoundEntryName )

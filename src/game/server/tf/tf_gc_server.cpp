@@ -4397,6 +4397,16 @@ void CTFGCServerSystem::SDK_ApplyLocalLoadout(CGCClientSharedObjectCache* pCache
 			}
 		}
 	}
+
+	if ( CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerBySteamID( pCache->GetOwner() ) ) )
+	{
+		pPlayer->CheckInstantLoadoutRespawn();
+
+		CSingleUserRecipientFilter filter( pPlayer );
+		UserMessageBegin( filter, "SdkEquipment" );
+			WRITE_BOOL( true );
+		MessageEnd();
+	}
 }
 
 #endif // #ifdef ENABLE_GC_MATCHMAKING

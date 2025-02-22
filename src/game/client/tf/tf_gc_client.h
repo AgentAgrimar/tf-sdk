@@ -247,7 +247,7 @@ public:
 	// Have we received positive signal from the GC that our client version is out of date?
 	bool BClientOutOfDate() const { return m_bClientOutOfDate; }
 
-	void ServerRequestEquipment();
+	void ServerHandleEquipment( bool bHasEquipment );
 	void LocalInventoryChanged();
 
 protected:
@@ -260,6 +260,7 @@ protected:
 private:
 	friend class CGCClientAcceptInviteResponse;
 	friend class CGCWorldStatusBroadcast;
+	friend class CLoadoutHUDStatus;
 //	void CreateSourceTVProxy( uint32 source_tv_public_addr, uint32 source_tv_private_addr, uint32 source_tv_port );
 
 	//
@@ -331,6 +332,7 @@ private:
 		kWebapiInventoryState_WaitingForServerAuthToken,
 		kWebapiInventoryState_ServerAuthTokenReceived,
 		kWebapiInventoryState_SentToServer,
+		kWebapiInventoryState_ServerInventoryReceived,
 	};
 
 	struct WebapiInventoryState_t
@@ -367,14 +369,6 @@ private:
 	//
 	// SDK Server inventory -- just get the auth ticket and send it to the server
 	//
-	enum EWebapiServerInventoryState {
-		kWebapiServerInventoryState_Init,
-		kWebapiServerInventoryState_RequestAuthToken,
-		kWebapiServerInventoryState_WaitingForAuthToken,
-		kWebapiServerInventoryState_AuthTokenReceived,
-		kWebapiServerInventoryState_SendToServer
-	};
-	WebapiInventoryState_t m_WebapiServerInventory;
 	void OnWebapiServerAuthTicketReceived( GetTicketForWebApiResponse_t* pInfo );
 
 	// SDK expansion points
