@@ -4026,6 +4026,7 @@ ConVar tf_mm_trusted( "tf_mm_trusted", "0", FCVAR_NOTIFY | FCVAR_HIDDEN,
 	"Set to 1 on Valve servers to requested trusted status.  (Yes, it is authenticated on the backend, and attempts by non-valve servers are logged.)\n",
 	OnMMServerModeTrustedChanged );
 
+#ifdef INVENTORY_WEBAPI_BACKOFF
 // Backoff api
 void CTFGCServerSystem::WebapiEquipmentState_t::Backoff()
 {
@@ -4047,6 +4048,7 @@ bool CTFGCServerSystem::WebapiEquipmentState_t::IsBackingOff()
 {
 	return m_rtNextRequest != 0 && CRTime::RTime32TimeCur() <= m_rtNextRequest;
 }
+#endif
 
 CTFGCServerSystem::WebapiEquipmentState_t& CTFGCServerSystem::FindOrCreateWebapiEquipmentState( CSteamID steamID )
 {
@@ -4073,9 +4075,11 @@ void CTFGCServerSystem::WebapiEquipmentThinkRequest( CSteamID steamID, WebapiEqu
 	Assert( pState );
 	WebapiEquipmentState_t& state = *pState;
 
+#ifdef INVENTORY_WEBAPI_BACKOFF
 	// If we are waiting on timer/rate limit, don't do anything
 	if ( state.IsBackingOff() )
 		return;
+#endif
 
 	switch( state.m_eState )
 	{
@@ -4162,7 +4166,9 @@ void CTFGCServerSystem::WebapiEquipmentThinkRequest( CSteamID steamID, WebapiEqu
 		SteamAPICall_t callResult;
 		if ( !SteamHTTP()->SendHTTPRequest( state.m_hEquipmentRequest, &callResult ) )
 		{
+#ifdef INVENTORY_WEBAPI_BACKOFF
 			state.Backoff();
+#endif
 			return;
 		}
 
@@ -4183,9 +4189,11 @@ void CTFGCServerSystem::WebapiEquipmentThinkRequest( CSteamID steamID, WebapiEqu
 			state.m_pKVCurrentRequest = nullptr;
 		}
 
+#ifdef INVENTORY_WEBAPI_BACKOFF
 		// Don't allow spamming this api -- wait 20 seconds before we ask gc for items again
 		state.RequestSucceeded();
 		state.Backoff();
+#endif
 		state.m_eState = kWebapiEquipmentState_WaitingForClientRequest;
 		break;
 
@@ -4226,7 +4234,9 @@ void CTFGCServerSystem::OnWebapiEquipmentReceived( CSteamID steamID, HTTPRequest
 		return;
 
 	// Assume failure, we'll correct this change if we succeeded
+#ifdef INVENTORY_WEBAPI_BACKOFF
 	state.Backoff();
+#endif
 	state.m_eState = kWebapiEquipmentState_RequestInventory;
 
 	if ( !SteamHTTP() )
@@ -4331,8 +4341,10 @@ void CTFGCServerSystem::OnWebapiEquipmentReceived( CSteamID steamID, HTTPRequest
 		Warning( "Inventory response missing inventory msg\n" );
 	}
 
+#ifdef INVENTORY_WEBAPI_BACKOFF
 	// We were successful, clear backoff timers
 	state.RequestSucceeded();
+#endif
 	state.m_eState = kWebapiEquipmentState_InventoryReceived;
 }
 

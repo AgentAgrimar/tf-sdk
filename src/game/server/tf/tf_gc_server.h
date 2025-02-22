@@ -639,12 +639,14 @@ private:
 		// and unchanged, since sdk games cannot mutate the user's actual inventory.
 		KeyValues* m_pKVNextRequest = nullptr;
 
+#ifdef INVENTORY_WEBAPI_BACKOFF
 		// Backoff
 		RTime32 m_rtNextRequest = 0;
 		int m_nBackoffSec = 0;
 		void Backoff();
 		void RequestSucceeded();	// resets backoff timers
 		bool IsBackingOff();
+#endif
 
 		// Steam callback
 		void OnWebapiEquipmentReceived( HTTPRequestCompleted_t* pInfo, bool bIOFailure );

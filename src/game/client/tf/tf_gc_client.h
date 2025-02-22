@@ -357,12 +357,14 @@ private:
 		// Did we make any changes that we need to communicate to a server?
 		bool m_bLocalChangesApplied = false;
 
+#ifdef INVENTORY_WEBAPI_BACKOFF
 		// Backoff
 		RTime32 m_rtNextRequest = 0;
 		int m_nBackoffSec = 0;
 		void Backoff();
 		void RequestSucceeded();	// resets backoff timers
 		bool IsBackingOff();
+#endif
 	};
 	WebapiInventoryState_t m_WebapiInventory;
 
